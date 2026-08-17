@@ -1,0 +1,64 @@
+name: estetix_ai
+description: "Estetix AI — Flutter mobile app. Aura Dark theme, 8-language localization (RTL support), Clean Architecture / Feature-first."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.12.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # Icons
+  cupertino_icons: ^1.0.8
+
+  # State management & dependency injection
+  provider: ^6.1.5+1
+  get_it: 8.0.3
+
+  # Localization (pinned to 0.20.2 by flutter_localizations from the SDK)
+  intl: 0.20.2
+
+  # Fonts
+  google_fonts: ^8.2.1
+
+  # Local storage (locale persistence)
+  shared_preferences: ^2.5.5
+  supabase_flutter: ^2.17.2
+  device_info_plus: ^13.2.0
+  state_notifier: ^1.0.0
+  flutter_state_notifier: ^1.0.0
+  crypto: ^3.0.7
+  image_picker: ^1.2.3
+  url_launcher: ^6.3.2
+
+  # Drive / PDF report engine
+  pdf: ^3.11.0
+  printing: ^5.14.0
+  http: ^1.2.0
+
+  # Monetization (RevenueCat subscriptions + AdMob ads)
+  purchases_flutter: ^8.0.0
+  google_mobile_ads: ^6.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  # The "flutter_lints" package below contains a set of recommended lints to
+  # encourage good coding practices.
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  # Enable localization code generation (driven by l10n.yaml).
+  generate: true
+
+  # Bundled fonts for offline PDF report generation (Unicode / Turkish glyphs).
+  assets:
+    - assets/fonts/
