@@ -46,11 +46,13 @@ class AiService implements AiTransformRepository {
   }
 
   @override
-  Future<TransformationResult> transform({
+  Future<List<TransformationResult>> transform({
     required String imageUrl,
     required TransformModule module,
     required TransformStyle style,
     required bool isPremium,
+    String? mode,
+    String? healthNotes,
   }) async {
     final FunctionResponse response = await _client.functions.invoke(
       _functionName,
@@ -59,6 +61,8 @@ class AiService implements AiTransformRepository {
         'module_type': module.wire,
         'style': style.wire,
         'is_premium': isPremium,
+        'mode': mode,
+        'health_notes': healthNotes,
       },
     );
 
@@ -79,7 +83,19 @@ class AiService implements AiTransformRepository {
     if (payload is! Map) {
       throw const AiTransformFailure(AiTransformFailureCode.unexpectedPayload);
     }
-    return TransformationResult.fromJson(Map<String, dynamic>.from(payload));
+    final Object? rawOptions = payload['options'];
+    if (rawOptions is! List) {
+      throw const AiTransformFailure(AiTransformFailureCode.unexpectedPayload);
+    }
+    final List<TransformationResult> options = <TransformationResult>[];
+    for (final Object? e in rawOptions) {
+      if (e is Map) {
+        options.add(
+          TransformationResult.fromJson(Map<String, dynamic>.from(e)),
+        );
+      }
+    }
+    return options;
   }
 
   String _extensionOf(String fileName) {

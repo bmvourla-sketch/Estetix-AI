@@ -11,7 +11,8 @@ class AiTransformState {
     this.isPremium = false,
     this.pickedImage,
     this.inputImageUrl,
-    this.result,
+    this.options,
+    this.selectedIndex = -1,
     this.remainingTokens,
     this.errorCode,
   });
@@ -22,7 +23,8 @@ class AiTransformState {
   final bool isPremium;
   final PickedImage? pickedImage;
   final String? inputImageUrl;
-  final TransformationResult? result;
+  final List<TransformationResult>? options;
+  final int selectedIndex;
   final int? remainingTokens;
   final String? errorCode;
 
@@ -35,6 +37,13 @@ class AiTransformState {
   bool get canTransform =>
       !isBusy && pickedImage != null && module != null && style != null;
 
+  TransformationResult? get selectedResult {
+    final List<TransformationResult>? list = options;
+    if (list == null || list.isEmpty || selectedIndex < 0) return null;
+    if (selectedIndex >= list.length) return null;
+    return list[selectedIndex];
+  }
+
   AiTransformState copyWith({
     AiTransformStatus? status,
     TransformModule? module,
@@ -42,7 +51,8 @@ class AiTransformState {
     bool? isPremium,
     PickedImage? pickedImage,
     String? inputImageUrl,
-    TransformationResult? result,
+    List<TransformationResult>? options,
+    int? selectedIndex,
     int? remainingTokens,
     String? errorCode,
     bool clearError = false,
@@ -54,7 +64,8 @@ class AiTransformState {
       isPremium: isPremium ?? this.isPremium,
       pickedImage: pickedImage ?? this.pickedImage,
       inputImageUrl: inputImageUrl ?? this.inputImageUrl,
-      result: result ?? this.result,
+      options: options ?? this.options,
+      selectedIndex: selectedIndex ?? this.selectedIndex,
       remainingTokens: remainingTokens ?? this.remainingTokens,
       errorCode: clearError ? null : (errorCode ?? this.errorCode),
     );

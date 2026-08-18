@@ -1,8 +1,9 @@
-/// The three Estetix Drive folder categories (mirror the AI transform modules).
+/// The four Estetix Drive folder categories (mirror the AI transform modules).
 enum DriveCategory {
-  space('space'),
-  wardrobe('wardrobe'),
-  kitchen('kitchen');
+  outdoor('outdoor'),
+  interior('interior'),
+  fashion('fashion'),
+  diet('diet');
 
   const DriveCategory(this.wire);
 

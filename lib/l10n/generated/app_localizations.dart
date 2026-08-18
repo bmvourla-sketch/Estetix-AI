@@ -236,23 +236,29 @@ abstract class AppLocalizations {
   /// **'Choose module'**
   String get chooseModule;
 
-  /// No description provided for @moduleSpace.
+  /// No description provided for @moduleInterior.
   ///
   /// In en, this message translates to:
-  /// **'Space'**
-  String get moduleSpace;
+  /// **'Interior'**
+  String get moduleInterior;
 
-  /// No description provided for @moduleWardrobe.
+  /// No description provided for @moduleOutdoor.
   ///
   /// In en, this message translates to:
-  /// **'Wardrobe'**
-  String get moduleWardrobe;
+  /// **'Garden & Outdoor'**
+  String get moduleOutdoor;
 
-  /// No description provided for @moduleKitchen.
+  /// No description provided for @moduleFashion.
   ///
   /// In en, this message translates to:
-  /// **'Diet & Kitchen'**
-  String get moduleKitchen;
+  /// **'Fashion & Makeup'**
+  String get moduleFashion;
+
+  /// No description provided for @moduleDiet.
+  ///
+  /// In en, this message translates to:
+  /// **'Diet & Food'**
+  String get moduleDiet;
 
   /// No description provided for @chooseStyle.
   ///
@@ -386,23 +392,29 @@ abstract class AppLocalizations {
   /// **'Store your transformations and PDF reports'**
   String get driveSubtitle;
 
-  /// No description provided for @folderSpace.
+  /// No description provided for @folderInterior.
   ///
   /// In en, this message translates to:
-  /// **'Space & Garden'**
-  String get folderSpace;
+  /// **'Interior'**
+  String get folderInterior;
 
-  /// No description provided for @folderWardrobe.
+  /// No description provided for @folderOutdoor.
   ///
   /// In en, this message translates to:
-  /// **'Wardrobe & Style'**
-  String get folderWardrobe;
+  /// **'Garden & Outdoor'**
+  String get folderOutdoor;
 
-  /// No description provided for @folderKitchen.
+  /// No description provided for @folderFashion.
   ///
   /// In en, this message translates to:
-  /// **'Diet & Kitchen'**
-  String get folderKitchen;
+  /// **'Fashion & Makeup'**
+  String get folderFashion;
+
+  /// No description provided for @folderDiet.
+  ///
+  /// In en, this message translates to:
+  /// **'Diet & Food'**
+  String get folderDiet;
 
   /// No description provided for @emptyFolder.
   ///

@@ -309,15 +309,17 @@ class _StyleSelector extends StatelessWidget {
 
 String _moduleLabel(AppLocalizations l10n, TransformModule module) =>
     switch (module) {
-      TransformModule.space => l10n.moduleSpace,
-      TransformModule.wardrobe => l10n.moduleWardrobe,
-      TransformModule.kitchen => l10n.moduleKitchen,
+      TransformModule.outdoor => l10n.moduleOutdoor,
+      TransformModule.interior => l10n.moduleInterior,
+      TransformModule.fashion => l10n.moduleFashion,
+      TransformModule.diet => l10n.moduleDiet,
     };
 
 IconData _moduleIcon(TransformModule module) => switch (module) {
-      TransformModule.space => Icons.chair_outlined,
-      TransformModule.wardrobe => Icons.checkroom,
-      TransformModule.kitchen => Icons.restaurant_outlined,
+      TransformModule.outdoor => Icons.yard_outlined,
+      TransformModule.interior => Icons.chair_outlined,
+      TransformModule.fashion => Icons.checkroom,
+      TransformModule.diet => Icons.restaurant_outlined,
     };
 
 String _styleLabel(AppLocalizations l10n, TransformStyle style) =>

@@ -28,9 +28,9 @@ const corsHeaders = {
 };
 
 const AFFILIATE_SUBID = 'estetix_app';
-const ALLOWED_MODULES = new Set<string>(['space', 'wardrobe', 'kitchen']);
+const ALLOWED_MODULES = new Set<string>(['outdoor', 'interior', 'fashion', 'diet']);
 
-type ModuleType = 'space' | 'wardrobe' | 'kitchen';
+type ModuleType = 'outdoor' | 'interior' | 'fashion' | 'diet';
 
 interface TransformRequestBody {
   image_url?: string;
@@ -38,6 +38,8 @@ interface TransformRequestBody {
   module_type?: string;
   is_premium?: boolean;
   style?: string;
+  mode?: string;
+  health_notes?: string;
 }
 
 interface GeminiAnalysis {
@@ -47,6 +49,7 @@ interface GeminiAnalysis {
 
 interface ProductRow {
   name: string;
+  price: number;
   price_estimate: string;
   search_url: string;
 }
@@ -64,18 +67,21 @@ const STYLE_HINTS: Record<string, string> = {
 };
 
 const ANALYSIS_PROMPTS: Record<ModuleType, string> = {
-  space:
+  outdoor:
+    'You are an outdoor and garden design analyst. Analyze the outdoor space or garden in the image and list what is missing or could be improved (plants, furniture, lighting, layout). Reply with ONLY JSON: {"summary": string, "missing_items": string[]}',
+  interior:
     'You are an interior design analyst. Analyze the room in the image and list what is missing or could be improved (furniture, decor, lighting, layout). Reply with ONLY JSON: {"summary": string, "missing_items": string[]}',
-  wardrobe:
-    'You are a fashion stylist. Analyze the outfit in the image and list missing or improvable items (garments, accessories, colors). Reply with ONLY JSON: {"summary": string, "missing_items": string[]}',
-  kitchen:
-    'You are a nutrition and kitchen analyst. Analyze the image and identify the dish or kitchen setup; list missing ingredients or tools. Reply with ONLY JSON: {"summary": string, "missing_items": string[]}',
+  fashion:
+    'You are a fashion and beauty stylist. Analyze the outfit or makeup in the image and list missing or improvable items (garments, accessories, colors, makeup). Reply with ONLY JSON: {"summary": string, "missing_items": string[]}',
+  diet:
+    'You are a nutrition and diet analyst. Analyze the dish or kitchen setup and list missing ingredients or tools. Reply with ONLY JSON: {"summary": string, "missing_items": string[]}',
 };
 
 const MODULE_ACTIONS: Record<ModuleType, string> = {
-  space: 'redesign this interior space',
-  wardrobe: 'restyle this outfit',
-  kitchen: 'improve this meal or kitchen setup',
+  outdoor: 'redesign this outdoor space or garden',
+  interior: 'redesign this interior space',
+  fashion: 'restyle this outfit or makeup look',
+  diet: 'improve this meal or create a healthy recipe',
 };
 
 Deno.serve(async (req: Request): Promise<Response> => {
@@ -130,25 +136,52 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
     // 2) Gemini 1.5 Flash: analyze the scene / outfit / dish.
     const analysis = await analyzeWithGemini(base64, mime, moduleType);
-    const prompt = buildRenderPrompt(moduleType, body.style ?? '', analysis);
+    // 3) Render two options (FLUX free / OpenAI premium).
+    const renderUrls: string[] = [];
+    for (const variant of [0, 1] as const) {
+      const vPrompt = buildRenderPrompt(
+        moduleType,
+        body.style ?? '',
+        analysis,
+        variant,
+      );
+      const vBytes = body.is_premium
+        ? await renderWithOpenAI(base64, mime, vPrompt)
+        : await renderWithReplicate(base64, mime, vPrompt);
+      renderUrls.push(await uploadRender(supabase, user.id, vBytes));
+    }
 
-    // 3) Render: FLUX.1 [dev] (free) or gpt-image-1 edits (premium).
-    const renderBytes = body.is_premium
-      ? await renderWithOpenAI(base64, mime, prompt)
-      : await renderWithReplicate(base64, mime, prompt);
+    // 4) DeepSeek-V3: two product lists + DIY/recipe steps.
+    const options: Array<Record<string, unknown>> = [];
+    for (const variant of [0, 1] as const) {
+      const shopping = await searchProductsWithDeepSeek(
+        moduleType,
+        analysis,
+        body.mode,
+        body.health_notes,
+        variant,
+      );
+      const products = shopping.products.map((p) => ({
+        name: p.name,
+        price: formatLira(p.price),
+        price_estimate: p.price_estimate,
+        search_url: p.search_url,
+        affiliate_url: appendSubid(p.search_url, AFFILIATE_SUBID),
+      }));
+      const total = shopping.products.reduce(
+        (sum, p) => sum + (p.price || 0),
+        0,
+      );
+      options.push({
+        render_image_url: renderUrls[variant],
+        analysis_summary: analysis.summary,
+        products,
+        diy_steps: shopping.diy_steps,
+        total_cost: formatLira(total),
+      });
+    }
 
-    // 4) Persist the render into Supabase Storage (public bucket).
-    const renderUrl = await uploadRender(supabase, user.id, renderBytes);
-
-    // 5) DeepSeek-V3: products + DIY steps.
-    const shopping = await searchProductsWithDeepSeek(moduleType, analysis);
-    const products = shopping.products.map((p) => ({
-      name: p.name,
-      price_estimate: p.price_estimate,
-      search_url: appendSubid(p.search_url, AFFILIATE_SUBID),
-    }));
-
-    // 6) Token deduction (authoritative; atomic).
+    // 5) Token deduction (authoritative; atomic).
     const { error: deductError } = await supabase.rpc('deduct_token', {
       user_id: user.id,
       amount,
@@ -157,12 +190,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       return json({ error: deductError.message }, 402);
     }
 
-    return json({
-      render_image_url: renderUrl,
-      analysis_summary: analysis.summary,
-      products,
-      diy_steps: shopping.diy_steps,
-    });
+    return json({ options });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Internal error';
     return json({ error: message }, 500);
@@ -275,16 +303,21 @@ function buildRenderPrompt(
   moduleType: ModuleType,
   style: string,
   analysis: GeminiAnalysis,
+  variant: 0 | 1,
 ): string {
   const improvements =
     analysis.missing_items.length > 0
       ? analysis.missing_items.join(', ')
       : analysis.summary;
   const styleHint = STYLE_HINTS[style] ?? 'natural, realistic';
+  const variantHint =
+    variant === 0
+      ? 'Option A: a clean, minimal interpretation.'
+      : 'Option B: a bolder, more distinctive interpretation.';
   return (
     `Photorealistic ${MODULE_ACTIONS[moduleType]}. ` +
     `Improvements to apply: ${improvements}. ` +
-    `Style: ${styleHint}. Keep the original layout and camera angle.`
+    `Style: ${styleHint}. ${variantHint} Keep the original layout and camera angle.`
   );
 }
 
@@ -395,19 +428,28 @@ async function renderWithOpenAI(
 async function searchProductsWithDeepSeek(
   moduleType: ModuleType,
   analysis: GeminiAnalysis,
+  mode?: string,
+  healthNotes?: string,
+  variant: 0 | 1 = 0,
 ): Promise<DeepSeekResult> {
   const apiKey = Deno.env.get('DEEPSEEK_API_KEY') ?? '';
   if (!apiKey) throw new Error('DEEPSEEK_API_KEY is not set');
+
+  const isDiet = moduleType === 'diet';
+  const extraContext = isDiet
+    ? `Meal type: ${mode === 'diet' ? 'a healthy diet program' : 'a normal everyday meal'}.\nHealth notes: ${healthNotes || 'none'}.`
+    : '';
 
   const userPrompt = [
     `Module: ${moduleType}.`,
     `Analysis: ${analysis.summary}`,
     `Missing items: ${analysis.missing_items.join(', ') || 'none'}.`,
-    'Find up to 5 realistic products with estimated prices in Turkish Lira (₺) and working search URLs.',
-    'Prefer https://www.trendyol.com/sr?q=<query> or https://www.hepsiburada.com/ara?q=<query> style URLs.',
-    'Also write 3-5 practical DIY/recipe steps to apply this transformation.',
-    'Respond with ONLY JSON: {"products":[{"name":"...","price_estimate":"₺...","search_url":"https://..."}],"diy_steps":["..."]}',
-  ].join('\n');
+    extraContext,
+    isDiet
+      ? 'Generate ONE recipe using the identified and missing items. List the ingredients as "products" (name + estimated ₺ price + search URL) and the cooking steps as "diy_steps" (4-6 numbered steps).'
+      : 'Find up to 5 realistic products with estimated prices in Turkish Lira (₺) and working search URLs. Prefer https://www.trendyol.com/sr?q=<query> or https://www.hepsiburada.com/ara?q=<query> style URLs. Also write 3-5 practical DIY/recipe steps to apply this transformation.',
+    `Variant ${variant === 0 ? 'A (clean/minimal)' : 'B (bold/distinctive)'}. Respond with ONLY JSON: {"products":[{"name":"...","price":1299,"price_estimate":"₺1.299","search_url":"https://..."}],"diy_steps":["..."]}`,
+  ].filter((s) => s.length > 0).join('\n');
 
   const res = await fetch('https://api.deepseek.com/chat/completions', {
     method: 'POST',
@@ -441,10 +483,12 @@ async function searchProductsWithDeepSeek(
       ? parsed.products.map(
           (p: {
             name?: unknown;
+            price?: unknown;
             price_estimate?: unknown;
             search_url?: unknown;
           }) => ({
             name: String(p.name ?? 'Ürün'),
+            price: Number(p.price ?? 0) || 0,
             price_estimate: String(p.price_estimate ?? '—'),
             search_url: String(p.search_url ?? ''),
           }),
@@ -479,4 +523,9 @@ function appendSubid(url: string, subid: string): string {
   if (!url) return url;
   const separator = url.includes('?') ? '&' : '?';
   return `${url}${separator}subid=${subid}`;
+}
+
+function formatLira(amount: number): string {
+  if (!amount || Number.isNaN(amount)) return '—';
+  return `₺${amount.toLocaleString('tr-TR')}`;
 }

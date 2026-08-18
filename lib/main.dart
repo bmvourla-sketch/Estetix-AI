@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/widgets.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -20,9 +21,12 @@ Future<void> main() async {
   await initServiceLocator();
   await getIt<LocaleProvider>().init();
 
-  // Monetization SDKs (RevenueCat purchases + AdMob ads).
-  await getIt<RevenueCatService>().init();
-  await getIt<AdService>().init();
+  // Monetization SDKs (RevenueCat purchases + AdMob ads) are mobile-only.
+  // Skip them on web so the app still boots for browser previews.
+  if (!kIsWeb) {
+    await getIt<RevenueCatService>().init();
+    await getIt<AdService>().init();
+  }
 
   runApp(const EstetixApp());
 }

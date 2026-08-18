@@ -89,9 +89,10 @@ class _DriveFolderPageState extends State<DriveFolderPage> {
   }
 
   String _label(AppLocalizations l10n, DriveCategory c) => switch (c) {
-        DriveCategory.space => l10n.folderSpace,
-        DriveCategory.wardrobe => l10n.folderWardrobe,
-        DriveCategory.kitchen => l10n.folderKitchen,
+        DriveCategory.outdoor => l10n.folderOutdoor,
+        DriveCategory.interior => l10n.folderInterior,
+        DriveCategory.fashion => l10n.folderFashion,
+        DriveCategory.diet => l10n.folderDiet,
       };
 }
 

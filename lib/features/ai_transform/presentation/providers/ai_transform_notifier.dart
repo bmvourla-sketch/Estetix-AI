@@ -12,7 +12,8 @@ class AiTransformNotifier extends StateNotifier<AiTransformState> {
     required this.aiRepository,
     required this.walletRepository,
     required this.userId,
-  }) : super(const AiTransformState());
+    TransformModule? initialModule,
+  }) : super(AiTransformState(module: initialModule));
 
   final AiTransformRepository aiRepository;
   final WalletRepository walletRepository;
@@ -38,7 +39,7 @@ class AiTransformNotifier extends StateNotifier<AiTransformState> {
   void setPremium(bool value) => state = state.copyWith(isPremium: value);
 
   /// Uploads the picked photo and calls the transform-engine function.
-  Future<void> start() async {
+  Future<void> start({String? mode, String? healthNotes}) async {
     final PickedImage? picked = state.pickedImage;
     final TransformModule? module = state.module;
     final TransformStyle? style = state.style;
@@ -75,15 +76,18 @@ class AiTransformNotifier extends StateNotifier<AiTransformState> {
         status: AiTransformStatus.processing,
         inputImageUrl: imageUrl,
       );
-      final TransformationResult result = await aiRepository.transform(
+      final List<TransformationResult> results = await aiRepository.transform(
         imageUrl: imageUrl,
         module: module,
         style: style,
         isPremium: isPremium,
+        mode: mode,
+        healthNotes: healthNotes,
       );
       state = state.copyWith(
         status: AiTransformStatus.success,
-        result: result,
+        options: results,
+        selectedIndex: -1,
       );
     } catch (e) {
       final bool insufficientTokens = e is AiTransformFailure &&
@@ -95,6 +99,10 @@ class AiTransformNotifier extends StateNotifier<AiTransformState> {
       );
     }
   }
+
+  /// Picks one of the generated options.
+  void selectOption(int index) =>
+      state = state.copyWith(selectedIndex: index);
 
   /// Restarts the flow with a clean slate.
   void reset() => state = const AiTransformState();

@@ -66,7 +66,7 @@ void main() {
     final DriveNotifier notifier = DriveNotifier(_FakeDriveRepository());
     final String? code = await notifier.save(
       userId: 'u',
-      category: DriveCategory.space,
+      category: DriveCategory.interior,
       data: _data(),
     );
     expect(code, isNull);
@@ -82,7 +82,7 @@ void main() {
     );
     final String? code = await notifier.save(
       userId: 'u',
-      category: DriveCategory.space,
+      category: DriveCategory.interior,
       data: _data(),
     );
     expect(code, 'storage_full');
@@ -97,7 +97,7 @@ void main() {
     );
     final String? code = await notifier.save(
       userId: 'u',
-      category: DriveCategory.space,
+      category: DriveCategory.interior,
       data: _data(),
     );
     expect(code, 'save_failed');
@@ -109,7 +109,7 @@ void main() {
         listFailure: const DriveFailure(DriveFailureCode.loadFailed),
       ),
     );
-    await notifier.loadProjects('u', DriveCategory.wardrobe);
+    await notifier.loadProjects('u', DriveCategory.fashion);
     expect(notifier.state.errorCode, 'load_failed');
     expect(notifier.state.isLoading, isFalse);
   });

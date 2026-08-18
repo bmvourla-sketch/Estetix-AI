@@ -3,9 +3,9 @@ import 'package:provider/provider.dart';
 
 import '../features/auth/presentation/providers/auth_ui_state.dart';
 import '../features/auth/presentation/pages/phone_login_page.dart';
-import '../features/home/presentation/pages/home_page.dart';
 import '../features/monetization/presentation/providers/monetization_notifier.dart';
 import '../features/wallet/presentation/providers/wallet_notifier.dart';
+import 'main_shell.dart';
 
 /// Routes between the login flow and the authenticated home screen.
 class AuthGate extends StatelessWidget {
@@ -26,6 +26,6 @@ class AuthGate extends StatelessWidget {
       // Tie the RevenueCat app-user-id to the Supabase user id (webhook map).
       context.read<MonetizationNotifier>().logIn(userId);
     }
-    return const HomePage();
+    return const MainShell();
   }
 }

@@ -12,7 +12,7 @@ class AiTransformFlowPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final AiTransformState state = context.watch<AiTransformState>();
-    if (state.status == AiTransformStatus.success && state.result != null) {
+    if (state.status == AiTransformStatus.success && state.options != null) {
       return const ResultPage();
     }
     return const CameraUploadPage();

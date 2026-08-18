@@ -74,13 +74,16 @@ class AppLocalizationsJa extends AppLocalizations {
   String get chooseModule => 'モジュールを選択';
 
   @override
-  String get moduleSpace => '空間';
+  String get moduleInterior => 'インテリア';
 
   @override
-  String get moduleWardrobe => 'ワードローブ';
+  String get moduleOutdoor => '庭・屋外';
 
   @override
-  String get moduleKitchen => 'ダイエット＆キッチン';
+  String get moduleFashion => 'ファッション・メイク';
+
+  @override
+  String get moduleDiet => 'ダイエット・料理';
 
   @override
   String get chooseStyle => 'スタイルを選択';
@@ -149,13 +152,16 @@ class AppLocalizationsJa extends AppLocalizations {
   String get driveSubtitle => '変換とPDFレポートを保存';
 
   @override
-  String get folderSpace => '空間と庭';
+  String get folderInterior => 'インテリア';
 
   @override
-  String get folderWardrobe => 'ワードローブとスタイル';
+  String get folderOutdoor => '庭・屋外';
 
   @override
-  String get folderKitchen => '食事とキッチン';
+  String get folderFashion => 'ファッション・メイク';
+
+  @override
+  String get folderDiet => 'ダイエット・料理';
 
   @override
   String get emptyFolder => 'このフォルダにはまだプロジェクトがありません。';

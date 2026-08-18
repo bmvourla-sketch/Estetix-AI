@@ -10,10 +10,12 @@ abstract interface class AiTransformRepository {
   Future<String> uploadInputImage(PickedImage image);
 
   /// Invokes the transform-engine Edge Function.
-  Future<TransformationResult> transform({
+  Future<List<TransformationResult>> transform({
     required String imageUrl,
     required TransformModule module,
     required TransformStyle style,
     required bool isPremium,
+    String? mode,
+    String? healthNotes,
   });
 }

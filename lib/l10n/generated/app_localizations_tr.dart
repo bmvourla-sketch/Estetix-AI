@@ -75,13 +75,16 @@ class AppLocalizationsTr extends AppLocalizations {
   String get chooseModule => 'Modül seç';
 
   @override
-  String get moduleSpace => 'Mekan';
+  String get moduleInterior => 'İç Mekan';
 
   @override
-  String get moduleWardrobe => 'Gardırop';
+  String get moduleOutdoor => 'Bahçe & Dış Mekan';
 
   @override
-  String get moduleKitchen => 'Diyet & Mutfak';
+  String get moduleFashion => 'Moda & Makyaj';
+
+  @override
+  String get moduleDiet => 'Diyet & Yemek';
 
   @override
   String get chooseStyle => 'Stil seç';
@@ -150,13 +153,16 @@ class AppLocalizationsTr extends AppLocalizations {
   String get driveSubtitle => 'Dönüşümlerinizi ve PDF raporlarınızı saklayın';
 
   @override
-  String get folderSpace => 'Mekan & Bahçe';
+  String get folderInterior => 'İç Mekan';
 
   @override
-  String get folderWardrobe => 'Gardırop & Stil';
+  String get folderOutdoor => 'Bahçe & Dış Mekan';
 
   @override
-  String get folderKitchen => 'Diyet & Mutfak';
+  String get folderFashion => 'Moda & Makyaj';
+
+  @override
+  String get folderDiet => 'Diyet & Yemek';
 
   @override
   String get emptyFolder => 'Bu klasörde henüz proje yok.';

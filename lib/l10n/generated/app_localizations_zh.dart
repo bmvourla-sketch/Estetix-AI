@@ -74,13 +74,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get chooseModule => '选择模块';
 
   @override
-  String get moduleSpace => '空间';
+  String get moduleInterior => '室内设计';
 
   @override
-  String get moduleWardrobe => '衣橱';
+  String get moduleOutdoor => '花园与户外';
 
   @override
-  String get moduleKitchen => '饮食与厨房';
+  String get moduleFashion => '时尚与美妆';
+
+  @override
+  String get moduleDiet => '饮食与美食';
 
   @override
   String get chooseStyle => '选择风格';
@@ -149,13 +152,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get driveSubtitle => '保存您的转换和 PDF 报告';
 
   @override
-  String get folderSpace => '空间与花园';
+  String get folderInterior => '室内设计';
 
   @override
-  String get folderWardrobe => '衣橱与风格';
+  String get folderOutdoor => '花园与户外';
 
   @override
-  String get folderKitchen => '饮食与厨房';
+  String get folderFashion => '时尚与美妆';
+
+  @override
+  String get folderDiet => '饮食与美食';
 
   @override
   String get emptyFolder => '此文件夹中还没有项目。';

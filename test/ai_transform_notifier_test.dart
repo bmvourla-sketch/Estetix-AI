@@ -22,24 +22,28 @@ class _FakeAiRepository implements AiTransformRepository {
       'https://example.com/storage/input.png';
 
   @override
-  Future<TransformationResult> transform({
+  Future<List<TransformationResult>> transform({
     required String imageUrl,
     required TransformModule module,
     required TransformStyle style,
     required bool isPremium,
+    String? mode,
+    String? healthNotes,
   }) async {
-    return TransformationResult(
-      renderImageUrl: 'https://example.com/storage/render.png',
-      analysisSummary: 'Analysis ok',
-      products: const <AiProduct>[
-        AiProduct(
-          name: 'Masa lambası',
-          priceEstimate: '₺499',
-          searchUrl: 'https://example.com/search?q=lamp',
-        ),
-      ],
-      diySteps: const <String>['Adım 1', 'Adım 2'],
-    );
+    return <TransformationResult>[
+      TransformationResult(
+        renderImageUrl: 'https://example.com/storage/render.png',
+        analysisSummary: 'Analysis ok',
+        products: const <AiProduct>[
+          AiProduct(
+            name: 'Masa lambası',
+            priceEstimate: '₺499',
+            searchUrl: 'https://example.com/search?q=lamp',
+          ),
+        ],
+        diySteps: const <String>['Adım 1', 'Adım 2'],
+      ),
+    ];
   }
 }
 
@@ -90,11 +94,13 @@ class _FailingAiRepository implements AiTransformRepository {
       'https://example.com/storage/input.png';
 
   @override
-  Future<TransformationResult> transform({
+  Future<List<TransformationResult>> transform({
     required String imageUrl,
     required TransformModule module,
     required TransformStyle style,
     required bool isPremium,
+    String? mode,
+    String? healthNotes,
   }) async {
     throw failure;
   }
@@ -110,7 +116,7 @@ void main() {
 
     await notifier.pickImage(PickSource.gallery);
     notifier
-      ..selectModule(TransformModule.space)
+      ..selectModule(TransformModule.interior)
       ..selectStyle(TransformStyle.budget);
 
     await notifier.start();
@@ -128,19 +134,20 @@ void main() {
 
     await notifier.pickImage(PickSource.camera);
     notifier
-      ..selectModule(TransformModule.wardrobe)
+      ..selectModule(TransformModule.fashion)
       ..selectStyle(TransformStyle.luxury)
       ..setPremium(true);
 
     await notifier.start();
 
     expect(notifier.state.status, AiTransformStatus.success);
+    expect(notifier.state.options, hasLength(1));
     expect(
-      notifier.state.result?.renderImageUrl,
+      notifier.state.options?.first.renderImageUrl,
       'https://example.com/storage/render.png',
     );
-    expect(notifier.state.result?.products, hasLength(1));
-    expect(notifier.state.result?.diySteps, hasLength(2));
+    expect(notifier.state.options?.first.products, hasLength(1));
+    expect(notifier.state.options?.first.diySteps, hasLength(2));
     expect(notifier.state.tokenCost, 3);
   });
 
@@ -170,7 +177,7 @@ void main() {
 
     await notifier.pickImage(PickSource.gallery);
     notifier
-      ..selectModule(TransformModule.kitchen)
+      ..selectModule(TransformModule.diet)
       ..selectStyle(TransformStyle.cozy);
 
     await notifier.start();
@@ -190,7 +197,7 @@ void main() {
 
     await notifier.pickImage(PickSource.camera);
     notifier
-      ..selectModule(TransformModule.space)
+      ..selectModule(TransformModule.interior)
       ..selectStyle(TransformStyle.budget);
 
     await notifier.start();

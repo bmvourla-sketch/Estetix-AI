@@ -74,13 +74,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get chooseModule => 'اختر الوحدة';
 
   @override
-  String get moduleSpace => 'المكان';
+  String get moduleInterior => 'التصميم الداخلي';
 
   @override
-  String get moduleWardrobe => 'خزانة الملابس';
+  String get moduleOutdoor => 'الحديقة والخارج';
 
   @override
-  String get moduleKitchen => 'النظام الغذائي والمطبخ';
+  String get moduleFashion => 'الموضة والمكياج';
+
+  @override
+  String get moduleDiet => 'النظام الغذائي والطعام';
 
   @override
   String get chooseStyle => 'اختر النمط';
@@ -149,13 +152,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get driveSubtitle => 'احفظ تحويلاتك وتقارير PDF';
 
   @override
-  String get folderSpace => 'المساحة والحديقة';
+  String get folderInterior => 'التصميم الداخلي';
 
   @override
-  String get folderWardrobe => 'خزانة الملابس والأسلوب';
+  String get folderOutdoor => 'الحديقة والخارج';
 
   @override
-  String get folderKitchen => 'النظام الغذائي والمطبخ';
+  String get folderFashion => 'الموضة والمكياج';
+
+  @override
+  String get folderDiet => 'النظام الغذائي والطعام';
 
   @override
   String get emptyFolder => 'لا توجد مشاريع في هذا المجلد بعد.';

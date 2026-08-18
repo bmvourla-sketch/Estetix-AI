@@ -75,13 +75,16 @@ class AppLocalizationsEs extends AppLocalizations {
   String get chooseModule => 'Elige módulo';
 
   @override
-  String get moduleSpace => 'Espacio';
+  String get moduleInterior => 'Interior';
 
   @override
-  String get moduleWardrobe => 'Armario';
+  String get moduleOutdoor => 'Jardín y exterior';
 
   @override
-  String get moduleKitchen => 'Dieta y cocina';
+  String get moduleFashion => 'Moda y maquillaje';
+
+  @override
+  String get moduleDiet => 'Dieta y comida';
 
   @override
   String get chooseStyle => 'Elige estilo';
@@ -150,13 +153,16 @@ class AppLocalizationsEs extends AppLocalizations {
   String get driveSubtitle => 'Guarda tus transformaciones e informes PDF';
 
   @override
-  String get folderSpace => 'Espacio y jardín';
+  String get folderInterior => 'Interior';
 
   @override
-  String get folderWardrobe => 'Armario y estilo';
+  String get folderOutdoor => 'Jardín y exterior';
 
   @override
-  String get folderKitchen => 'Dieta y cocina';
+  String get folderFashion => 'Moda y maquillaje';
+
+  @override
+  String get folderDiet => 'Dieta y comida';
 
   @override
   String get emptyFolder => 'Aún no hay proyectos en esta carpeta.';
