@@ -18,6 +18,7 @@ import '../../features/monetization/data/repositories/monetization_repository_im
 import '../../features/monetization/data/services/ad_service.dart';
 import '../../features/monetization/data/services/revenuecat_service.dart';
 import '../../features/monetization/domain/repositories/monetization_repository.dart';
+import '../../features/weather/data/services/weather_service.dart';
 import '../../features/wallet/data/services/wallet_service.dart';
 import '../../features/wallet/domain/repositories/wallet_repository.dart';
 import '../../features/wardrobe/data/repositories/wardrobe_repository_impl.dart';
@@ -82,6 +83,9 @@ Future<void> initServiceLocator({
   getIt.registerLazySingleton<HealthProfileRepository>(
     () => HealthProfileRepositoryImpl(getIt<SupabaseClient>()),
   );
+
+  // Weather (fashion "Bugün Ne Giysem" weather-aware suggestions)
+  getIt.registerLazySingleton<WeatherService>(() => WeatherService());
 
   // Wardrobe (fashion "Gardırop" mode)
   getIt.registerLazySingleton<WardrobeRepository>(

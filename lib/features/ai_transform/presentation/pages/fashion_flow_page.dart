@@ -7,6 +7,8 @@ import '../../../monetization/presentation/widgets/token_out_prompt.dart';
 import '../../../wardrobe/domain/entities/wardrobe_item.dart';
 import '../../../wardrobe/domain/repositories/wardrobe_repository.dart';
 import '../../../wardrobe/presentation/pages/wardrobe_page.dart';
+import '../../../weather/data/services/weather_service.dart';
+import '../../../weather/domain/entities/weather.dart';
 import '../../domain/entities/transformation_result.dart';
 import '../providers/ai_transform_notifier.dart';
 import '../providers/ai_transform_state.dart';
@@ -25,14 +27,17 @@ class FashionFlowPage extends StatefulWidget {
 class _FashionFlowPageState extends State<FashionFlowPage> {
   String _mode = 'wardrobe';
   final TextEditingController _contextController = TextEditingController();
+  Weather? _weather;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final notifier = context.read<AiTransformNotifier>();
       notifier.selectModule(TransformModule.fashion);
       notifier.selectStyle(TransformStyle.budget);
+      final Weather? weather = await getIt<WeatherService>().current();
+      if (weather != null && mounted) setState(() => _weather = weather);
     });
   }
 
@@ -71,6 +76,11 @@ class _FashionFlowPageState extends State<FashionFlowPage> {
   Future<void> _generate() async {
     final String mood = _contextController.text.trim();
     String note = mood;
+    if (_weather != null) {
+      note = note.isEmpty
+          ? 'Hava: ${_weather!.summary}.'
+          : 'Hava: ${_weather!.summary}. \$note';
+    }
     if (_mode == 'wardrobe') {
       final String summary = await _wardrobeSummary();
       if (summary.isNotEmpty) {
@@ -107,6 +117,16 @@ class _FashionFlowPageState extends State<FashionFlowPage> {
         padding: const EdgeInsets.all(16),
         children: <Widget>[
           _photoCard(state, busy),
+          if (_weather != null) ...<Widget>[
+            const SizedBox(height: 12),
+            Row(
+              children: <Widget>[
+                const Icon(Icons.wb_sunny_outlined, size: 18),
+                const SizedBox(width: 6),
+                Text('Bugün: ${_weather!.summary}'),
+              ],
+            ),
+          ],
           const SizedBox(height: 20),
           const Text('Ne yapalım?',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
