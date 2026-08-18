@@ -6,7 +6,7 @@ import '../../../../core/widgets/aura_background.dart';
 import '../../../../core/widgets/glass_card.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import '../../domain/entities/transformation_result.dart';
-import '../../../monetization/presentation/pages/paywall_page.dart';
+import '../../../monetization/presentation/widgets/token_out_prompt.dart';
 import '../providers/ai_transform_notifier.dart';
 import '../providers/ai_transform_state.dart';
 
@@ -80,11 +80,14 @@ class CameraUploadPage extends StatelessWidget {
                 ],
                 if (state.errorCode != null) ...<Widget>[
                   const SizedBox(height: 16),
-                  Text(
-                    _errorText(l10n, state.errorCode),
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(color: Color(0xFFF87171)),
-                  ),
+                  if (state.errorCode == 'insufficient_tokens')
+                    const TokenOutPrompt()
+                  else
+                    Text(
+                      _errorText(l10n, state.errorCode),
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: Color(0xFFF87171)),
+                    ),
                 ],
               ],
             ),
@@ -101,13 +104,6 @@ class CameraUploadPage extends StatelessWidget {
 
   Future<void> _transform(BuildContext context) async {
     await context.read<AiTransformNotifier>().start();
-    if (!context.mounted) return;
-    final String? code = context.read<AiTransformState>().errorCode;
-    if (code == 'insufficient_tokens') {
-      await Navigator.of(context).push(
-        MaterialPageRoute<void>(builder: (_) => const PaywallPage()),
-      );
-    }
   }
 }
 

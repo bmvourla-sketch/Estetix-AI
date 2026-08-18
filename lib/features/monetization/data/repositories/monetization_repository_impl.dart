@@ -7,7 +7,10 @@ import '../services/ad_service.dart';
 import '../services/revenuecat_service.dart';
 
 /// Concrete [MonetizationRepository]: RevenueCat for purchases, AdMob for
-/// rewarded ads, and Supabase RPCs to sync credits / pro status.
+/// rewarded ads, and the `reward-token` Edge Function for reward grants.
+///
+/// Credits and pro status after a purchase are granted *server-side* by the
+/// `paywall-webhook` Edge Function (RevenueCat webhook), not by the client.
 class MonetizationRepositoryImpl implements MonetizationRepository {
   MonetizationRepositoryImpl({
     required this.client,
@@ -34,8 +37,8 @@ class MonetizationRepositoryImpl implements MonetizationRepository {
 
   @override
   Future<void> purchaseProPlan(String userId, ProPlan plan) async {
+    // Pro status is granted server-side by paywall-webhook (RevenueCat).
     await revenueCat.purchase(plan.id);
-    await _setProStatus(userId, true);
   }
 
   @override
@@ -43,8 +46,8 @@ class MonetizationRepositoryImpl implements MonetizationRepository {
     String userId,
     CreditPackage package,
   ) async {
+    // Credits are granted server-side by paywall-webhook (RevenueCat).
     await revenueCat.purchase(package.id);
-    await _addCredits(userId, package.credits);
   }
 
   @override
@@ -74,20 +77,5 @@ class MonetizationRepositoryImpl implements MonetizationRepository {
   @override
   Future<void> restorePurchases(String userId) async {
     await revenueCat.restore();
-    await _setProStatus(userId, await revenueCat.hasProAccess());
-  }
-
-  Future<void> _addCredits(String userId, int amount) async {
-    await client.rpc(
-      'update_user_credits',
-      params: <String, dynamic>{'user_id': userId, 'delta': amount},
-    );
-  }
-
-  Future<void> _setProStatus(String userId, bool isPro) async {
-    await client.rpc(
-      'set_pro_status',
-      params: <String, dynamic>{'user_id': userId, 'is_pro': isPro},
-    );
   }
 }

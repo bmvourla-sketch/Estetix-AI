@@ -5,6 +5,7 @@ import '../../domain/entities/transformation_result.dart';
 import '../providers/ai_transform_notifier.dart';
 import '../providers/ai_transform_state.dart';
 import 'result_page.dart';
+import '../../../monetization/presentation/widgets/token_out_prompt.dart';
 
 /// Fashion panel — "Bugün Ne Giysem?": photograph an outfit/self, choose
 /// "wardrobe" (existing clothes) or "new" (brand-new pieces), add the mood or
@@ -98,7 +99,10 @@ class _FashionFlowPageState extends State<FashionFlowPage> {
           ),
           if (state.errorCode != null) ...<Widget>[
             const SizedBox(height: 16),
-            Text(state.errorCode!, style: const TextStyle(color: Colors.red)),
+            if (state.errorCode == 'insufficient_tokens')
+              const TokenOutPrompt()
+            else
+              Text(state.errorCode!, style: const TextStyle(color: Colors.red)),
           ],
         ],
       ),
