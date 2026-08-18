@@ -20,6 +20,8 @@ import '../../features/monetization/data/services/revenuecat_service.dart';
 import '../../features/monetization/domain/repositories/monetization_repository.dart';
 import '../../features/wallet/data/services/wallet_service.dart';
 import '../../features/wallet/domain/repositories/wallet_repository.dart';
+import '../../features/wardrobe/data/repositories/wardrobe_repository_impl.dart';
+import '../../features/wardrobe/domain/repositories/wardrobe_repository.dart';
 import '../localization/locale_provider.dart';
 import '../services/device_service.dart';
 
@@ -79,6 +81,11 @@ Future<void> initServiceLocator({
   // Health profile (diet personalization)
   getIt.registerLazySingleton<HealthProfileRepository>(
     () => HealthProfileRepositoryImpl(getIt<SupabaseClient>()),
+  );
+
+  // Wardrobe (fashion "Gardırop" mode)
+  getIt.registerLazySingleton<WardrobeRepository>(
+    () => WardrobeRepositoryImpl(getIt<SupabaseClient>()),
   );
 
   // Monetization feature (RevenueCat purchases + AdMob ads)

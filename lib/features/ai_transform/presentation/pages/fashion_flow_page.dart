@@ -5,6 +5,7 @@ import '../../domain/entities/transformation_result.dart';
 import '../providers/ai_transform_notifier.dart';
 import '../providers/ai_transform_state.dart';
 import 'result_page.dart';
+import '../../../wardrobe/presentation/pages/wardrobe_page.dart';
 import '../../../monetization/presentation/widgets/token_out_prompt.dart';
 
 /// Fashion panel — "Bugün Ne Giysem?": photograph an outfit/self, choose
@@ -73,6 +74,15 @@ class _FashionFlowPageState extends State<FashionFlowPage> {
               _modeChip('Yeni Tasarım', 'new'),
             ],
           ),
+          const SizedBox(height: 4),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              onPressed: _openWardrobe,
+              icon: const Icon(Icons.checkroom, size: 18),
+              label: const Text('Gardırop\'u düzenle'),
+            ),
+          ),
           const SizedBox(height: 20),
           const Text('Modun / etkinlik (opsiyonel)',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
@@ -106,6 +116,12 @@ class _FashionFlowPageState extends State<FashionFlowPage> {
           ],
         ],
       ),
+    );
+  }
+
+  Future<void> _openWardrobe() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (_) => const WardrobePage()),
     );
   }
 
