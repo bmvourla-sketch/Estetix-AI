@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../core/di/service_locator.dart';
+import '../../../auth/presentation/providers/auth_ui_state.dart';
+import '../../../monetization/presentation/widgets/token_out_prompt.dart';
+import '../../../wardrobe/domain/entities/wardrobe_item.dart';
+import '../../../wardrobe/domain/repositories/wardrobe_repository.dart';
+import '../../../wardrobe/presentation/pages/wardrobe_page.dart';
 import '../../domain/entities/transformation_result.dart';
 import '../providers/ai_transform_notifier.dart';
 import '../providers/ai_transform_state.dart';
 import 'result_page.dart';
-import '../../../wardrobe/presentation/pages/wardrobe_page.dart';
-import '../../../monetization/presentation/widgets/token_out_prompt.dart';
 
-/// Fashion panel — "Bugün Ne Giysem?": photograph an outfit/self, choose
-/// "wardrobe" (existing clothes) or "new" (brand-new pieces), add the mood or
-/// occasion, and let the AI propose two looks.
+/// Fashion panel — "Bugün Ne Giysem?": three modes (wardrobe / new / makeup),
+/// plus mood/occasion. In "wardrobe" mode the AI is told what's in the
+/// user's photographed wardrobe.
 class FashionFlowPage extends StatefulWidget {
   const FashionFlowPage({super.key});
 
@@ -38,12 +42,52 @@ class _FashionFlowPageState extends State<FashionFlowPage> {
     super.dispose();
   }
 
+  Future<String> _wardrobeSummary() async {
+    final String? userId = context.read<AuthUiState>().user?.id;
+    if (userId == null) return '';
+    final List<WardrobeItem> items =
+        await getIt<WardrobeRepository>().list(userId);
+    if (items.isEmpty) return '';
+    final Map<String, int> counts = <String, int>{};
+    for (final WardrobeItem item in items) {
+      counts[item.category] = (counts[item.category] ?? 0) + 1;
+    }
+    final List<String> parts = counts.entries
+        .map((MapEntry<String, int> e) => '${e.value} ${_categoryLabel(e.key)}')
+        .toList();
+    return 'Gardıropta: ${parts.join(', ')}.';
+  }
+
+  String _categoryLabel(String c) => switch (c) {
+        'top' => 'Üst',
+        'bottom' => 'Alt',
+        'dress' => 'Elbise',
+        'shoes' => 'Ayakkabı',
+        'accessory' => 'Aksesuar',
+        'self' => 'Kendi Foto',
+        _ => c,
+      };
+
   Future<void> _generate() async {
-    final String ctx = _contextController.text.trim();
+    final String mood = _contextController.text.trim();
+    String note = mood;
+    if (_mode == 'wardrobe') {
+      final String summary = await _wardrobeSummary();
+      if (summary.isNotEmpty) {
+        note = summary + (mood.isNotEmpty ? '. $mood' : '');
+      }
+    }
+    if (!mounted) return;
     await context.read<AiTransformNotifier>().start(
           mode: _mode,
-          context: ctx.isEmpty ? null : ctx,
+          context: note.isEmpty ? null : note,
         );
+  }
+
+  Future<void> _openWardrobe() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (_) => const WardrobePage()),
+    );
   }
 
   @override
@@ -64,14 +108,16 @@ class _FashionFlowPageState extends State<FashionFlowPage> {
         children: <Widget>[
           _photoCard(state, busy),
           const SizedBox(height: 20),
-          const Text('Gardırobundan mı, yeni mi?',
+          const Text('Ne yapalım?',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
           const SizedBox(height: 8),
-          Row(
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
             children: <Widget>[
               _modeChip('Gardırop', 'wardrobe'),
-              const SizedBox(width: 8),
               _modeChip('Yeni Tasarım', 'new'),
+              _modeChip('Makyaj', 'makeup'),
             ],
           ),
           const SizedBox(height: 4),
@@ -119,12 +165,6 @@ class _FashionFlowPageState extends State<FashionFlowPage> {
     );
   }
 
-  Future<void> _openWardrobe() async {
-    await Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (_) => const WardrobePage()),
-    );
-  }
-
   Widget _modeChip(String label, String value) {
     final bool selected = _mode == value;
     return ChoiceChip(
@@ -153,7 +193,7 @@ class _FashionFlowPageState extends State<FashionFlowPage> {
                   children: <Widget>[
                     Icon(Icons.checkroom, size: 48),
                     SizedBox(height: 8),
-                    Text('Kombin / kıyafet fotoğrafı ekle'),
+                    Text('Kombin / kıyafet / yüz fotoğrafı ekle'),
                   ],
                 )
               : Image.memory(picked.bytes, fit: BoxFit.cover),

@@ -8,7 +8,8 @@ import 'result_page.dart';
 import '../../../monetization/presentation/widgets/token_out_prompt.dart';
 
 /// Design panel (outdoor / interior): photograph the space, choose
-/// "new design" or "reuse existing items", and let the AI propose two options.
+/// "new design" or "reuse existing items", add a style note, and let the AI
+/// propose two options.
 class DesignFlowPage extends StatefulWidget {
   const DesignFlowPage({super.key});
 
@@ -18,6 +19,7 @@ class DesignFlowPage extends StatefulWidget {
 
 class _DesignFlowPageState extends State<DesignFlowPage> {
   String _mode = 'new';
+  final TextEditingController _styleController = TextEditingController();
 
   @override
   void initState() {
@@ -28,8 +30,18 @@ class _DesignFlowPageState extends State<DesignFlowPage> {
     });
   }
 
+  @override
+  void dispose() {
+    _styleController.dispose();
+    super.dispose();
+  }
+
   Future<void> _generate() async {
-    await context.read<AiTransformNotifier>().start(mode: _mode);
+    final String style = _styleController.text.trim();
+    await context.read<AiTransformNotifier>().start(
+          mode: _mode,
+          context: style.isEmpty ? null : style,
+        );
   }
 
   @override
@@ -59,6 +71,18 @@ class _DesignFlowPageState extends State<DesignFlowPage> {
               const SizedBox(width: 8),
               _modeChip('Var Olan Eşyalarla', 'existing'),
             ],
+          ),
+          const SizedBox(height: 20),
+          const Text('Stil (opsiyonel)',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          const SizedBox(height: 8),
+          TextField(
+            controller: _styleController,
+            maxLines: 2,
+            decoration: const InputDecoration(
+              hintText: 'Örn: modern, klasik, rustik, lüks, sıcak…',
+              border: OutlineInputBorder(),
+            ),
           ),
           const SizedBox(height: 24),
           FilledButton.icon(

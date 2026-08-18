@@ -443,7 +443,9 @@ async function searchProductsWithDeepSeek(
   const extraContext = isDiet
     ? `Meal type: ${mode === 'diet' ? 'a healthy diet program' : 'a normal everyday meal'}.\nHealth notes: ${healthNotes || 'none'}.`
     : isFashion
-      ? `Fashion mode: ${mode === 'wardrobe' ? "use the person's existing wardrobe" : 'suggest brand-new pieces'}.\nMood/occasion/context: ${context || 'none'}.`
+      ? mode === 'makeup'
+        ? `Makeup mode: focus on makeup and beauty recommendations.\nContext: ${context || 'none'}.`
+        : `Fashion mode: ${mode === 'wardrobe' ? "use the person's existing wardrobe" : 'suggest brand-new pieces'}.\nMood/occasion/context: ${context || 'none'}.`
       : `Design mode: ${mode === 'existing' ? 'reuse the existing furniture/items' : 'suggest brand-new pieces'}.\nContext: ${context || 'none'}.`;
 
   const userPrompt = [
