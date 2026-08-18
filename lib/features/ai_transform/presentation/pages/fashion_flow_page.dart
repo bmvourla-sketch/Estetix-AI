@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../core/di/service_locator.dart';
 import '../../../auth/presentation/providers/auth_ui_state.dart';
+import '../../../chat/presentation/pages/chat_page.dart';
 import '../../../monetization/presentation/widgets/token_out_prompt.dart';
 import '../../../wardrobe/domain/entities/wardrobe_item.dart';
 import '../../../wardrobe/domain/repositories/wardrobe_repository.dart';
@@ -112,7 +113,16 @@ class _FashionFlowPageState extends State<FashionFlowPage> {
         state.status == AiTransformStatus.processing;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Bugün Ne Giysem?')),
+      appBar: AppBar(
+        title: const Text('Bugün Ne Giysem?'),
+        actions: <Widget>[
+          IconButton(
+            onPressed: _openChat,
+            icon: const Icon(Icons.chat_bubble_outline),
+            tooltip: 'Sohbetle Anlat',
+          ),
+        ],
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: <Widget>[
@@ -182,6 +192,12 @@ class _FashionFlowPageState extends State<FashionFlowPage> {
           ],
         ],
       ),
+    );
+  }
+
+  Future<void> _openChat() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (_) => const ChatPage()),
     );
   }
 
