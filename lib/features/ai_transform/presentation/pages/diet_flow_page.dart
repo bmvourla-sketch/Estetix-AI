@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../core/di/service_locator.dart';
+import '../../../auth/presentation/providers/auth_ui_state.dart';
+import '../../../health_profile/domain/entities/health_profile.dart';
+import '../../../health_profile/domain/repositories/health_profile_repository.dart';
+import '../../../health_profile/presentation/widgets/health_profile_dialog.dart';
+import '../../../monetization/presentation/widgets/token_out_prompt.dart';
 import '../../domain/entities/transformation_result.dart';
 import '../providers/ai_transform_notifier.dart';
 import '../providers/ai_transform_state.dart';
 import 'result_page.dart';
-import '../../../monetization/presentation/widgets/token_out_prompt.dart';
 
 /// Diet & recipe panel: photograph fridge/counter ingredients, choose a mode
-/// (diet / normal), optionally add health notes, and let the AI return a
-/// recipe that is saved to the archive.
+/// (diet / normal), set a health profile (age/height/weight/conditions/goal),
+/// and let the AI return a personalized recipe.
 class DietFlowPage extends StatefulWidget {
   const DietFlowPage({super.key});
 
@@ -19,15 +24,24 @@ class DietFlowPage extends StatefulWidget {
 
 class _DietFlowPageState extends State<DietFlowPage> {
   String _mode = 'diet';
+  HealthProfile _profile = const HealthProfile();
   final TextEditingController _healthController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final notifier = context.read<AiTransformNotifier>();
       notifier.selectModule(TransformModule.diet);
       notifier.selectStyle(TransformStyle.budget);
+      final String? userId = context.read<AuthUiState>().user?.id;
+      if (userId != null) {
+        final HealthProfile? profile =
+            await getIt<HealthProfileRepository>().getProfile(userId);
+        if (profile != null && mounted) {
+          setState(() => _profile = profile);
+        }
+      }
     });
   }
 
@@ -37,17 +51,32 @@ class _DietFlowPageState extends State<DietFlowPage> {
     super.dispose();
   }
 
+  Future<void> _editProfile() async {
+    final String? userId = context.read<AuthUiState>().user?.id;
+    if (userId == null) return;
+    final HealthProfile? result = await showDialog<HealthProfile>(
+      context: context,
+      builder: (_) => HealthProfileDialog(userId: userId, initial: _profile),
+    );
+    if (result != null && mounted) setState(() => _profile = result);
+  }
+
   Future<void> _generate() async {
-    final String health = _healthController.text.trim();
+    final String notes = _healthController.text.trim();
+    final String profile = _profile.toPrompt();
+    final String combined = <String>[
+      if (profile.isNotEmpty) profile,
+      if (notes.isNotEmpty) notes,
+    ].join('. ');
     await context.read<AiTransformNotifier>().start(
           mode: _mode,
-          healthNotes: health.isEmpty ? null : health,
+          healthNotes: combined.isEmpty ? null : combined,
         );
   }
 
   @override
   Widget build(BuildContext context) {
-    final AiTransformState state = context.watch<AiTransformState>();
+    final state = context.watch<AiTransformState>();
 
     if (state.status == AiTransformStatus.success && state.options != null) {
       return const ResultPage();
@@ -74,14 +103,33 @@ class _DietFlowPageState extends State<DietFlowPage> {
             ],
           ),
           const SizedBox(height: 20),
-          const Text('Sağlık notları (opsiyonel)',
+          const Text('Sağlık Profili',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          const SizedBox(height: 8),
+          Card(
+            clipBehavior: Clip.antiAlias,
+            child: ListTile(
+              leading: const Icon(Icons.monitor_heart_outlined),
+              title: Text(
+                _profile.isEmpty
+                    ? 'Profilini oluştur (yaş, boy, kilo, rahatsızlık)'
+                    : _profile.toPrompt(),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              trailing: const Icon(Icons.edit_outlined),
+              onTap: _editProfile,
+            ),
+          ),
+          const SizedBox(height: 20),
+          const Text('Ek notlar (opsiyonel)',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
           const SizedBox(height: 8),
           TextField(
             controller: _healthController,
-            maxLines: 3,
+            maxLines: 2,
             decoration: const InputDecoration(
-              hintText: 'Şeker, tansiyon, alerji, hedef (kilo verme) vb.',
+              hintText: 'Alerji, sevmediğin besinler vb.',
               border: OutlineInputBorder(),
             ),
           ),

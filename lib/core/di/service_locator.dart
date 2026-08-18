@@ -8,6 +8,8 @@ import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/drive/data/repositories/drive_repository_impl.dart';
 import '../../features/drive/data/services/pdf_generator_service.dart';
 import '../../features/drive/domain/repositories/drive_repository.dart';
+import '../../features/health_profile/data/repositories/health_profile_repository_impl.dart';
+import '../../features/health_profile/domain/repositories/health_profile_repository.dart';
 import '../../features/home/data/repositories/home_repository_impl.dart';
 import '../../features/home/domain/repositories/home_repository.dart';
 import '../../features/home/domain/usecases/get_welcome_message.dart';
@@ -72,6 +74,11 @@ Future<void> initServiceLocator({
       pdfGenerator: getIt<PdfGeneratorService>(),
       walletRepository: getIt<WalletRepository>(),
     ),
+  );
+
+  // Health profile (diet personalization)
+  getIt.registerLazySingleton<HealthProfileRepository>(
+    () => HealthProfileRepositoryImpl(getIt<SupabaseClient>()),
   );
 
   // Monetization feature (RevenueCat purchases + AdMob ads)
