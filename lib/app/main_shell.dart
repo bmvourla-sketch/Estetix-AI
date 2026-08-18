@@ -6,7 +6,7 @@ import '../core/di/service_locator.dart';
 import '../core/widgets/banner_ad_slot.dart';
 import '../features/ai_transform/domain/entities/transformation_result.dart';
 import '../features/ai_transform/domain/repositories/ai_transform_repository.dart';
-import '../features/ai_transform/presentation/pages/ai_transform_flow_page.dart';
+import '../features/ai_transform/presentation/pages/design_flow_page.dart';
 import '../features/ai_transform/presentation/pages/diet_flow_page.dart';
 import '../features/ai_transform/presentation/pages/fashion_flow_page.dart';
 import '../features/ai_transform/presentation/providers/ai_transform_notifier.dart';
@@ -106,7 +106,7 @@ class _ModuleTab extends StatelessWidget {
           ? const DietFlowPage()
           : module == TransformModule.fashion
               ? const FashionFlowPage()
-              : const AiTransformFlowPage(),
+              : const DesignFlowPage(),
     );
   }
 }
