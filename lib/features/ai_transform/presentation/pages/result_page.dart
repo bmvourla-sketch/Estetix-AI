@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../app/theme/app_colors.dart';
@@ -39,6 +40,11 @@ class ResultPage extends StatelessWidget {
       appBar: AppBar(
         title: Text(l10n.resultTitle),
         actions: <Widget>[
+          IconButton(
+            onPressed: () => _share(context),
+            icon: const Icon(Icons.share_outlined),
+            tooltip: 'Paylaş',
+          ),
           IconButton(
             onPressed: () => _saveLook(context),
             icon: const Icon(Icons.favorite_border),
@@ -169,6 +175,18 @@ class ResultPage extends StatelessWidget {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(l10n.errorGeneric)));
     }
+  }
+
+  Future<void> _share(BuildContext context) async {
+    final AiTransformState state = context.read<AiTransformState>();
+    final TransformationResult? result = state.selectedResult;
+    if (result == null) return;
+    await SharePlus.instance.share(
+      ShareParams(
+        text:
+            'Estetix AI ile tasarladım! \u2728\n${result.analysisSummary}\n${result.renderImageUrl}',
+      ),
+    );
   }
 
   Future<void> _saveLook(BuildContext context) async {
