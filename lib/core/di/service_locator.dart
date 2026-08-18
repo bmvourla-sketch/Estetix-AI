@@ -21,6 +21,8 @@ import '../../features/monetization/data/services/ad_service.dart';
 import '../../features/monetization/data/services/revenuecat_service.dart';
 import '../../features/monetization/domain/repositories/monetization_repository.dart';
 import '../../features/weather/data/services/weather_service.dart';
+import '../../features/weight/data/repositories/weight_repository_impl.dart';
+import '../../features/weight/domain/repositories/weight_repository.dart';
 import '../../features/wallet/data/services/wallet_service.dart';
 import '../../features/wallet/domain/repositories/wallet_repository.dart';
 import '../../features/wardrobe/data/repositories/wardrobe_repository_impl.dart';
@@ -89,6 +91,11 @@ Future<void> initServiceLocator({
   // Saved looks (liked transformation results)
   getIt.registerLazySingleton<SavedLooksRepository>(
     () => SavedLooksRepositoryImpl(getIt<SupabaseClient>()),
+  );
+
+  // Weight log (diet progress tracking)
+  getIt.registerLazySingleton<WeightRepository>(
+    () => WeightRepositoryImpl(getIt<SupabaseClient>()),
   );
 
   // Weather (fashion "Bugün Ne Giysem" weather-aware suggestions)

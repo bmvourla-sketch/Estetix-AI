@@ -12,6 +12,7 @@ import '../../../../l10n/generated/app_localizations.dart';
 import '../../../auth/presentation/providers/auth_notifier.dart';
 import '../../../auth/presentation/providers/auth_ui_state.dart';
 import '../../../looks/presentation/pages/looks_page.dart';
+import '../../../weight/presentation/pages/weight_page.dart';
 import '../../../monetization/presentation/providers/monetization_notifier.dart';
 import '../../../wallet/presentation/widgets/wallet_card.dart';
 
@@ -52,6 +53,19 @@ class ProfilePage extends StatelessWidget {
                     title: const Text('Görünümler'),
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute<void>(builder: (_) => const LooksPage()),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                GlassCard(
+                  padding: EdgeInsets.zero,
+                  child: ListTile(
+                    leading: const Icon(Icons.monitor_weight_outlined,
+                        color: AppColors.emerald),
+                    title: const Text('Kilo Takibi'),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                          builder: (_) => const WeightPage()),
                     ),
                   ),
                 ),
