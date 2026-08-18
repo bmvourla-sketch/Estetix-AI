@@ -11,6 +11,7 @@ import '../../../../core/widgets/glass_card.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import '../../../auth/presentation/providers/auth_notifier.dart';
 import '../../../auth/presentation/providers/auth_ui_state.dart';
+import '../../../looks/presentation/pages/looks_page.dart';
 import '../../../monetization/presentation/providers/monetization_notifier.dart';
 import '../../../wallet/presentation/widgets/wallet_card.dart';
 
@@ -42,6 +43,18 @@ class ProfilePage extends StatelessWidget {
                       title: Text(phone),
                     ),
                   ),
+                const SizedBox(height: 16),
+                GlassCard(
+                  padding: EdgeInsets.zero,
+                  child: ListTile(
+                    leading: const Icon(Icons.favorite_border,
+                        color: Color(0xFF8B5CF6)),
+                    title: const Text('Görünümler'),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(builder: (_) => const LooksPage()),
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 16),
                 const WalletCard(),
                 const SizedBox(height: 16),

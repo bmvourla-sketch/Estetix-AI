@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../app/theme/app_colors.dart';
+import '../../../../core/di/service_locator.dart';
 import '../../../../core/widgets/aura_background.dart';
 import '../../../../core/widgets/glass_card.dart';
 import '../../../../l10n/generated/app_localizations.dart';
@@ -12,6 +13,7 @@ import '../../../drive/domain/entities/drive_category.dart';
 import '../../../drive/domain/entities/pdf_report_data.dart';
 import '../../../drive/presentation/providers/drive_notifier.dart';
 import '../../../drive/presentation/providers/drive_state.dart';
+import '../../../looks/domain/repositories/saved_looks_repository.dart';
 import '../../../monetization/presentation/pages/paywall_page.dart';
 import '../providers/ai_transform_notifier.dart';
 import '../providers/ai_transform_state.dart';
@@ -37,6 +39,11 @@ class ResultPage extends StatelessWidget {
       appBar: AppBar(
         title: Text(l10n.resultTitle),
         actions: <Widget>[
+          IconButton(
+            onPressed: () => _saveLook(context),
+            icon: const Icon(Icons.favorite_border),
+            tooltip: 'Görünüm olarak kaydet',
+          ),
           IconButton(
             onPressed: notifier.reset,
             icon: const Icon(Icons.refresh),
@@ -162,6 +169,23 @@ class ResultPage extends StatelessWidget {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(l10n.errorGeneric)));
     }
+  }
+
+  Future<void> _saveLook(BuildContext context) async {
+    final String? userId = context.read<AuthUiState>().user?.id;
+    final AiTransformState state = context.read<AiTransformState>();
+    final TransformationResult? result = state.selectedResult;
+    if (userId == null || result == null) return;
+    await getIt<SavedLooksRepository>().save(
+      userId,
+      state.module?.wire ?? '',
+      result.renderImageUrl,
+      result.analysisSummary,
+    );
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Görünüm olarak kaydedildi!')),
+    );
   }
 
   DriveCategory _categoryOf(TransformModule module) => switch (module) {
