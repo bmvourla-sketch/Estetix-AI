@@ -25,6 +25,10 @@ abstract interface class MonetizationRepository {
   /// Shows a rewarded video; returns true when the user earned a credit.
   Future<bool> watchRewardedAd(String userId);
 
+  /// Grants the one-time "+5 token" rate bonus; returns tokens granted
+  /// (0 when the user already rated).
+  Future<int> rateApp(String userId);
+
   /// Restores previous purchases and syncs the entitlement to Supabase.
   Future<void> restorePurchases(String userId);
 }

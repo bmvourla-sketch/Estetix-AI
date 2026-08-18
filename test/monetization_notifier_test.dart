@@ -56,6 +56,12 @@ class _FakeMonetizationRepository implements MonetizationRepository {
   }
 
   @override
+  Future<int> rateApp(String userId) async {
+    if (throwOnAction) throw Exception('boom');
+    return 5;
+  }
+
+  @override
   Future<void> restorePurchases(String userId) async {
     if (throwOnAction) throw Exception('boom');
   }

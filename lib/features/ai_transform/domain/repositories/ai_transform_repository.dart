@@ -17,5 +17,6 @@ abstract interface class AiTransformRepository {
     required bool isPremium,
     String? mode,
     String? healthNotes,
+    String? context,
   });
 }

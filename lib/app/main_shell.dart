@@ -8,6 +8,7 @@ import '../features/ai_transform/domain/entities/transformation_result.dart';
 import '../features/ai_transform/domain/repositories/ai_transform_repository.dart';
 import '../features/ai_transform/presentation/pages/ai_transform_flow_page.dart';
 import '../features/ai_transform/presentation/pages/diet_flow_page.dart';
+import '../features/ai_transform/presentation/pages/fashion_flow_page.dart';
 import '../features/ai_transform/presentation/providers/ai_transform_notifier.dart';
 import '../features/ai_transform/presentation/providers/ai_transform_state.dart';
 import '../features/auth/presentation/providers/auth_ui_state.dart';
@@ -103,7 +104,9 @@ class _ModuleTab extends StatelessWidget {
       ),
       child: module == TransformModule.diet
           ? const DietFlowPage()
-          : const AiTransformFlowPage(),
+          : module == TransformModule.fashion
+              ? const FashionFlowPage()
+              : const AiTransformFlowPage(),
     );
   }
 }

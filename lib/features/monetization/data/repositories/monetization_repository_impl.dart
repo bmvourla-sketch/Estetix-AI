@@ -50,8 +50,25 @@ class MonetizationRepositoryImpl implements MonetizationRepository {
   @override
   Future<bool> watchRewardedAd(String userId) async {
     final bool earned = await adService.showRewardedAd();
-    if (earned) await _addCredits(userId, 1);
+    if (earned) await _grantReward('video');
     return earned;
+  }
+
+  @override
+  Future<int> rateApp(String userId) => _grantReward('rate');
+
+  /// Grants tokens server-side via the service-role `reward-token` function.
+  Future<int> _grantReward(String rewardType) async {
+    final FunctionResponse response = await client.functions.invoke(
+      'reward-token',
+      body: <String, dynamic>{'reward_type': rewardType},
+    );
+    if (response.status < 200 || response.status >= 300) return 0;
+    final Object? payload = response.data;
+    if (payload is Map && payload['granted'] is num) {
+      return (payload['granted'] as num).toInt();
+    }
+    return 0;
   }
 
   @override

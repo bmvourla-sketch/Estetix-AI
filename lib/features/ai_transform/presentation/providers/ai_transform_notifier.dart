@@ -39,7 +39,7 @@ class AiTransformNotifier extends StateNotifier<AiTransformState> {
   void setPremium(bool value) => state = state.copyWith(isPremium: value);
 
   /// Uploads the picked photo and calls the transform-engine function.
-  Future<void> start({String? mode, String? healthNotes}) async {
+  Future<void> start({String? mode, String? healthNotes, String? context}) async {
     final PickedImage? picked = state.pickedImage;
     final TransformModule? module = state.module;
     final TransformStyle? style = state.style;
@@ -83,6 +83,7 @@ class AiTransformNotifier extends StateNotifier<AiTransformState> {
         isPremium: isPremium,
         mode: mode,
         healthNotes: healthNotes,
+        context: context,
       );
       state = state.copyWith(
         status: AiTransformStatus.success,

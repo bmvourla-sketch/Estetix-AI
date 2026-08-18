@@ -44,6 +44,12 @@ abstract final class MonetizationConfig {
     defaultValue: 'ca-app-pub-3940256099942544/6300978111',
   );
 
+  /// Store listing opened by the "rate app" reward button.
+  static const String rateAppUrl = String.fromEnvironment(
+    'RATE_APP_URL',
+    defaultValue: 'https://play.google.com/store/apps/details?id=com.estetix.estetix_ai',
+  );
+
   /// Master switch — set false to disable ads/purchases entirely (e.g. tests).
   static const bool enabled = bool.fromEnvironment(
     'MONETIZATION_ENABLED',

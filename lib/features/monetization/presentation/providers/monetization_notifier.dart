@@ -53,6 +53,19 @@ class MonetizationNotifier extends StateNotifier<MonetizationState> {
     }
   }
 
+  /// Opens the store rating and grants the one-time +5 token bonus.
+  Future<int> rateApp(String userId) async {
+    state = state.copyWith(isPurchasing: true, clearError: true);
+    try {
+      final int granted = await _repository.rateApp(userId);
+      state = state.copyWith(isPurchasing: false);
+      return granted;
+    } catch (e) {
+      state = state.copyWith(isPurchasing: false, error: e.toString());
+      return 0;
+    }
+  }
+
   /// Restores previous purchases. Returns true on success.
   Future<bool> restore(String userId) =>
       _run(() => _repository.restorePurchases(userId));

@@ -40,6 +40,7 @@ interface TransformRequestBody {
   style?: string;
   mode?: string;
   health_notes?: string;
+  context?: string;
 }
 
 interface GeminiAnalysis {
@@ -160,6 +161,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
         body.mode,
         body.health_notes,
         variant,
+        body.context,
       );
       const products = shopping.products.map((p) => ({
         name: p.name,
@@ -431,14 +433,18 @@ async function searchProductsWithDeepSeek(
   mode?: string,
   healthNotes?: string,
   variant: 0 | 1 = 0,
+  context?: string,
 ): Promise<DeepSeekResult> {
   const apiKey = Deno.env.get('DEEPSEEK_API_KEY') ?? '';
   if (!apiKey) throw new Error('DEEPSEEK_API_KEY is not set');
 
   const isDiet = moduleType === 'diet';
+  const isFashion = moduleType === 'fashion';
   const extraContext = isDiet
     ? `Meal type: ${mode === 'diet' ? 'a healthy diet program' : 'a normal everyday meal'}.\nHealth notes: ${healthNotes || 'none'}.`
-    : '';
+    : isFashion
+      ? `Fashion mode: ${mode === 'wardrobe' ? "use the person's existing wardrobe" : 'suggest brand-new pieces'}.\nMood/occasion/context: ${context || 'none'}.`
+      : '';
 
   const userPrompt = [
     `Module: ${moduleType}.`,

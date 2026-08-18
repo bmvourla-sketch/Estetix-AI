@@ -53,6 +53,7 @@ class AiService implements AiTransformRepository {
     required bool isPremium,
     String? mode,
     String? healthNotes,
+    String? context,
   }) async {
     final FunctionResponse response = await _client.functions.invoke(
       _functionName,
@@ -63,6 +64,7 @@ class AiService implements AiTransformRepository {
         'is_premium': isPremium,
         'mode': mode,
         'health_notes': healthNotes,
+        'context': context,
       },
     );
 

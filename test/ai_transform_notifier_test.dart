@@ -29,6 +29,7 @@ class _FakeAiRepository implements AiTransformRepository {
     required bool isPremium,
     String? mode,
     String? healthNotes,
+    String? context,
   }) async {
     return <TransformationResult>[
       TransformationResult(
@@ -101,6 +102,7 @@ class _FailingAiRepository implements AiTransformRepository {
     required bool isPremium,
     String? mode,
     String? healthNotes,
+    String? context,
   }) async {
     throw failure;
   }
