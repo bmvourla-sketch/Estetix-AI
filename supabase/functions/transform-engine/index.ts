@@ -441,7 +441,7 @@ async function searchProductsWithDeepSeek(
   const isDiet = moduleType === 'diet';
   const isFashion = moduleType === 'fashion';
   const extraContext = isDiet
-    ? `Meal type: ${mode === 'diet' ? 'a healthy diet program' : 'a normal everyday meal'}.\nHealth notes: ${healthNotes || 'none'}.`
+    ? `Meal type: ${mode === 'diet' ? 'a healthy diet program' : mode === 'weekly' ? 'a 7-day weekly meal plan' : 'a normal everyday meal'}.\nHealth notes: ${healthNotes || 'none'}.`
     : isFashion
       ? mode === 'makeup'
         ? `Makeup mode: focus on makeup and beauty recommendations.\nContext: ${context || 'none'}.`
@@ -454,7 +454,9 @@ async function searchProductsWithDeepSeek(
     `Missing items: ${analysis.missing_items.join(', ') || 'none'}.`,
     extraContext,
     isDiet
-      ? 'Generate ONE recipe using the identified and missing items. List the ingredients as "products" (name + estimated ₺ price + search URL) and the cooking steps as "diy_steps" (4-6 numbered steps).'
+      ? mode === 'weekly'
+        ? 'Generate a 7-day weekly meal plan using the identified and missing items. List a grocery list as "products" (name + estimated ₺ price + search URL) and the 7-day plan as "diy_steps" (one entry per day, e.g. "Pazartesi: Kahvaltı/Öğle/Akşam ...").'
+        : 'Generate ONE recipe using the identified and missing items. List the ingredients as "products" (name + estimated ₺ price + search URL) and the cooking steps as "diy_steps" (4-6 numbered steps).'
       : 'Find up to 5 realistic products with estimated prices in Turkish Lira (₺) and working search URLs. Prefer https://www.trendyol.com/sr?q=<query> or https://www.hepsiburada.com/ara?q=<query> style URLs. Also write 3-5 practical DIY/recipe steps to apply this transformation.',
     `Variant ${variant === 0 ? 'A (clean/minimal)' : 'B (bold/distinctive)'}. Respond with ONLY JSON: {"products":[{"name":"...","price":1299,"price_estimate":"₺1.299","search_url":"https://..."}],"diy_steps":["..."]}`,
   ].filter((s) => s.length > 0).join('\n');

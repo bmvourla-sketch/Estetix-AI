@@ -95,11 +95,13 @@ class _DietFlowPageState extends State<DietFlowPage> {
           const Text('Ne hazırlayalım?',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
           const SizedBox(height: 8),
-          Row(
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
             children: <Widget>[
               _modeChip('Diyet Programı', 'diet'),
-              const SizedBox(width: 8),
               _modeChip('Normal Yemek', 'normal'),
+              _modeChip('Haftalık Program', 'weekly'),
             ],
           ),
           const SizedBox(height: 20),
