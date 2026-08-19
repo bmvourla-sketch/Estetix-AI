@@ -1,11 +1,13 @@
 import 'dart:convert';
 
+import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 
 import '../../domain/entities/weather.dart';
 
-/// Fetches current weather from the free Open-Meteo API (no API key), locating
-/// the user via IP-based geolocation with an Istanbul fallback.
+/// Fetches current weather from the free Open-Meteo API (no API key). Uses the
+/// phone's GPS location first (geolocator), then IP-based geolocation, and
+/// finally an Istanbul fallback.
 class WeatherService {
   WeatherService({http.Client? client}) : _client = client ?? http.Client();
 
@@ -15,22 +17,17 @@ class WeatherService {
     try {
       double lat = 41.0082;
       double lon = 28.9784;
-      try {
-        final http.Response locRes = await _client
-            .get(Uri.parse('https://ipapi.co/json/'))
-            .timeout(const Duration(seconds: 5));
-        if (locRes.statusCode == 200) {
-          final Map<String, dynamic> loc =
-              jsonDecode(locRes.body) as Map<String, dynamic>;
-          final double? la = (loc['latitude'] as num?)?.toDouble();
-          final double? lo = (loc['longitude'] as num?)?.toDouble();
-          if (la != null && lo != null) {
-            lat = la;
-            lon = lo;
-          }
+
+      final (double, double)? gps = await _gpsLocation();
+      if (gps != null) {
+        lat = gps.$1;
+        lon = gps.$2;
+      } else {
+        final (double, double)? ip = await _ipLocation();
+        if (ip != null) {
+          lat = ip.$1;
+          lon = ip.$2;
         }
-      } catch (_) {
-        // fall back to Istanbul
       }
 
       final http.Response res = await _client
@@ -49,6 +46,43 @@ class WeatherService {
       final double tempC = (cw['temperature'] as num?)?.toDouble() ?? 0;
       final int code = (cw['weathercode'] as num?)?.toInt() ?? 0;
       return Weather(tempC: tempC, condition: _condition(code));
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<(double, double)?> _gpsLocation() async {
+    try {
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        return null;
+      }
+      final Position position = await Geolocator.getCurrentPosition(
+        locationSettings:
+            const LocationSettings(accuracy: LocationAccuracy.low),
+      ).timeout(const Duration(seconds: 8));
+      return (position.latitude, position.longitude);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<(double, double)?> _ipLocation() async {
+    try {
+      final http.Response res = await _client
+          .get(Uri.parse('https://ipapi.co/json/'))
+          .timeout(const Duration(seconds: 5));
+      if (res.statusCode != 200) return null;
+      final Map<String, dynamic> loc =
+          jsonDecode(res.body) as Map<String, dynamic>;
+      final double? la = (loc['latitude'] as num?)?.toDouble();
+      final double? lo = (loc['longitude'] as num?)?.toDouble();
+      if (la == null || lo == null) return null;
+      return (la, lo);
     } catch (_) {
       return null;
     }

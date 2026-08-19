@@ -32,6 +32,8 @@
 	<string>ca-app-pub-3940256099942544~1458002511</string>
 	<key>NSUserTrackingUsageDescription</key>
 	<string>Bu kimlik, reklamları size daha alakalı hale getirmek ve satın alma ilişkilendirmesini ölçmek için kullanılır.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Hava durumu için konumunuza ihtiyacımız var.</string>
 	<key>SKAdNetworkItems</key>
 	<array>
 		<dict>

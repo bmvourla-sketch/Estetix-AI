@@ -2,6 +2,8 @@
     <!-- Required for network access in RELEASE builds (Supabase, AdMob, RevenueCat).
          Debug/profile manifests already declare this; release does not by default. -->
     <uses-permission android:name="android.permission.INTERNET"/>
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <application
         android:label="estetix_ai"
         android:name="${applicationName}"
