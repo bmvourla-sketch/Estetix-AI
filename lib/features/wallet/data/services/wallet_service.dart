@@ -48,6 +48,14 @@ class WalletService implements WalletRepository {
         'used_storage_mb': usedStorageMb,
       });
 
+  @override
+  Future<Wallet> upgradeStorage(String userId, double amountMb, int cost) =>
+      _rpc('upgrade_storage', {
+        'user_id': userId,
+        'amount_mb': amountMb,
+        'cost': cost,
+      });
+
   Future<Wallet> _rpc(String fn, Map<String, dynamic> params) async {
     final Object? data = await _client.rpc(fn, params: params);
     // RPC returns a single profile row (Map) when the function RETURNS one.

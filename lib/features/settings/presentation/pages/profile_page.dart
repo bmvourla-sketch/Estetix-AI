@@ -14,6 +14,7 @@ import '../../../auth/presentation/providers/auth_ui_state.dart';
 import '../../../looks/presentation/pages/looks_page.dart';
 import '../../../weight/presentation/pages/weight_page.dart';
 import '../../../monetization/presentation/providers/monetization_notifier.dart';
+import '../../../wallet/presentation/widgets/storage_upgrade_dialog.dart';
 import '../../../wallet/presentation/widgets/wallet_card.dart';
 
 /// Profile panel: phone, wallet rewards, language and sign out.
@@ -71,6 +72,20 @@ class ProfilePage extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 const WalletCard(),
+                const SizedBox(height: 8),
+                GlassCard(
+                  padding: EdgeInsets.zero,
+                  child: ListTile(
+                    leading: const Icon(Icons.cloud_upload_outlined,
+                        color: AppColors.purple),
+                    title: const Text('Depo Yükselt'),
+                    subtitle: const Text('Token ile ekstra alan'),
+                    onTap: () => showDialog<void>(
+                      context: context,
+                      builder: (_) => const StorageUpgradeDialog(),
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 16),
                 GlassCard(
                   padding: const EdgeInsets.symmetric(vertical: 4),

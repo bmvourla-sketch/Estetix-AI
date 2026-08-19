@@ -75,6 +75,10 @@ class _FakeWalletRepository implements WalletRepository {
       );
 
   @override
+  Future<Wallet> upgradeStorage(String userId, double amountMb, int cost) async =>
+      Wallet(tokenBalance: 0, usedStorageMb: 0, maxStorageMb: 50);
+
+  @override
   Future<Wallet> updateStorageUsage(String userId, double usedStorageMb) async =>
       Wallet(tokenBalance: balance, usedStorageMb: usedStorageMb, maxStorageMb: 50);
 }

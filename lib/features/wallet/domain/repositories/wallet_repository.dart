@@ -13,4 +13,7 @@ abstract interface class WalletRepository {
   Future<Wallet> addToken(String userId, int amount);
 
   Future<Wallet> updateStorageUsage(String userId, double usedStorageMb);
+
+  /// Spends [cost] tokens to increase the user's max storage by [amountMb].
+  Future<Wallet> upgradeStorage(String userId, double amountMb, int cost);
 }
